@@ -30,7 +30,8 @@ function onLoad() {
 
     if (Math.ceil(data.data.totalHits < currentPage * 40)) {
              Notiflix.Notify.warning('We are sorry, but you have reached the end of search results.');
-             refs.loadMoreBtn.hidden = true}
+      refs.loadMoreBtn.hidden = true
+    }
     }     
   )
 }

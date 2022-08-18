@@ -88,3 +88,7 @@ form {
 .gallery a {
   text-decoration: none;
 }
+
+img {
+  height: 280px;
+}
