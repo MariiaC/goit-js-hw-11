@@ -16,19 +16,7 @@ async function forAxios(query, page){
    
     //замість феча(не треба переобр в джиес об'ект на відміну від фетча)
     //const axios = require('axios').default;
-    return await axios.get(`${BASE_URL}?${params}`)
-    //return response;
-        // .then(response => {
-        //    return console.log(response.data);
-        // })
-        // .catch(error => {
-        //     console.log(error);
-        // });
-  // fetch(`${BASE_URL}?${params}`)
-    // .then(response => response.json())
-    //     .then(console.log)
-    //     .catch((error) => {
-    //     console.error(error));
+    return await axios.get(`${BASE_URL}?${params}`);
     }
 
 export { forAxios }

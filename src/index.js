@@ -5,7 +5,8 @@ import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 // Додатковий імпорт стилів
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import {forAxios} from './for-axios.js';
+import { forAxios } from './for-axios.js';
+
 
 //refs
 const refs = {
@@ -13,12 +14,28 @@ const refs = {
   input: document.querySelector('.input'),
   searchBtn: document.querySelector('.search-button'),
   gallery: document.querySelector('.gallery'),
+  loadMoreBtn: document.querySelector('.load-more'),
 };
 // console.log(refs);
 
 refs.searchForm.addEventListener('submit', onSearch);
+refs.loadMoreBtn.addEventListener('click', onLoad)
+let currentPage = 1;
+let searchQuery;//вивели в глобальну змінну, щоб можна було потім опрокидувати на 
 
-let currentPage;
+function onLoad() {
+  forAxios(searchQuery, currentPage += 1)
+    .then(data => {
+      renderData(data.data.hits)//це вже інша змінна ніж на 48-різні обл видимості
+
+    if (Math.ceil(data.data.totalHits < currentPage * 40)) {
+             Notiflix.Notify.warning('We are sorry, but you have reached the end of search results.');
+             refs.loadMoreBtn.hidden = true}
+    }     
+  )
+}
+  
+const lightbox = new SimpleLightbox('.gallery a'); 
 
 function onSearch(event) {
     event.preventDefault();
@@ -27,21 +44,23 @@ function onSearch(event) {
     const query = event.currentTarget.elements.searchQuery.value.trim().toLowerCase();; //лінк на форму  
        if (!query) {  //якщо запит - це пуста строка
         return
-    }
+       }
+  searchQuery = query;
     //отримуємо інфо після рендерингу //отримання  - через фу-ціюна іншій вкладці. Тут вже умови прописуємо
   
    forAxios(query,currentPage) 
      .then(data => {
-       const hits = data.data.hits;
+       const hits = data.data.hits;//коли видаає результат можна подив через нетворк, що хітс знаходяться в дата, яка в дата))
           console.log(data);
-            if (!hits.length) {
-                Notiflix.Notify.failure('No matches found. Please try again');
-          
+          if (!hits.length) {
+                Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
                 return;
             }
-            Notiflix.Notify.info(`Success! ${data.data.totalHits}`);
+            Notiflix.Notify.info(`Hooray! We found ${data.data.totalHits} images. `);
             renderData(hits);
-        })
+            
+       refs.loadMoreBtn.hidden = false;    
+     })
         .catch( error => {
             Notiflix.Notify.failure('Oops, smth went wrong');
         })
@@ -77,12 +96,13 @@ function renderData(data) {
     })
         .join('');
   refs.gallery.insertAdjacentHTML('beforeend', markup);
-   lightbox.refresh()
-}
+  lightbox.refresh()          
+  
+};
 
 function clearData() {
   refs.gallery.innerHTML = '';
   currentPage = 1;
-}
+};
 
-const lightbox = new SimpleLightbox('.gallery a'); 
+  
