@@ -1,6 +1,6 @@
 import './css/styles.css';
 import Notiflix from 'notiflix';
-import axios from 'axios';
+// import axios from 'axios';
 // Описаний в документації
 import SimpleLightbox from 'simplelightbox';
 // Додатковий імпорт стилів
@@ -18,6 +18,8 @@ const refs = {
 
 refs.searchForm.addEventListener('submit', onSearch);
 
+let currentPage;
+
 function onSearch(event) {
     event.preventDefault();
     clearData();
@@ -27,14 +29,18 @@ function onSearch(event) {
         return
     }
     //отримуємо інфо після рендерингу //отримання  - через фу-ціюна іншій вкладці. Тут вже умови прописуємо
-   forAxios(query) 
-        .then(data => {
-            if (!data.hits.length) {
+  
+   forAxios(query,currentPage) 
+     .then(data => {
+       const hits = data.data.hits;
+          console.log(data);
+            if (!hits.length) {
                 Notiflix.Notify.failure('No matches found. Please try again');
+          
                 return;
             }
-            Notiflix.Notify.info('Success! ${data.totalHits}');
-            renderData(data.hits);
+            Notiflix.Notify.info(`Success! ${data.data.totalHits}`);
+            renderData(hits);
         })
         .catch( error => {
             Notiflix.Notify.failure('Oops, smth went wrong');
@@ -51,8 +57,8 @@ function renderData(data) {
         comments,
         downloads,
     }) => {
-        return `<div class="photo-card"> ${webformatURL}
-  <img src="${largeImageURL}" alt="${tags}" loading="lazy" />
+        return `<a href="${largeImageURL}"> <div class="photo-card"> 
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
       <b>Likes: ${likes}</b>
@@ -67,13 +73,16 @@ function renderData(data) {
       <b>Downloads: ${downloads}</b>
     </p>
   </div>
-</div>`;
+</div> </a>`;
     })
         .join('');
-    refs.gallery.insertAdjacentHTML('beforeend', markup)
+  refs.gallery.insertAdjacentHTML('beforeend', markup);
+   lightbox.refresh()
 }
-
 
 function clearData() {
- refs.gallery.innerHTML = '';
+  refs.gallery.innerHTML = '';
+  currentPage = 1;
 }
+
+const lightbox = new SimpleLightbox('.gallery a'); 
