@@ -15,6 +15,7 @@ const refs = {
   searchBtn: document.querySelector('.search-button'),
   gallery: document.querySelector('.gallery'),
   loadMoreBtn: document.querySelector('.load-more'),
+  msg:document.querySelector('.msg'),
 };
 // console.log(refs);
 
@@ -29,8 +30,9 @@ function onLoad() {
       renderData(data.data.hits)//це вже інша змінна ніж на 48-різні обл видимості
 
     if (Math.ceil(data.data.totalHits < currentPage * 40)) {
-             Notiflix.Notify.warning('We are sorry, but you have reached the end of search results.');
-      refs.loadMoreBtn.hidden = true
+      Notiflix.Notify.warning('We are sorry, but you have reached the end of search results.');
+      refs.loadMoreBtn.style.visibility = 'hidden';
+      refs.msg.style.visibility = 'visible';
     }
     }     
   )
@@ -39,8 +41,8 @@ function onLoad() {
 const lightbox = new SimpleLightbox('.gallery a'); 
 
 function onSearch(event) {
-    event.preventDefault();
-    clearData();
+  event.preventDefault();
+  clearData();
     // console.log(event);
     const query = event.currentTarget.elements.searchQuery.value.trim().toLowerCase();; //лінк на форму  
        if (!query) {  //якщо запит - це пуста строка
@@ -52,15 +54,16 @@ function onSearch(event) {
    forAxios(query,currentPage) 
      .then(data => {
        const hits = data.data.hits;//коли видаає результат можна подив через нетворк, що хітс знаходяться в дата, яка в дата))
-          console.log(data);
+          //console.log(data);
+       
           if (!hits.length) {
                 Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
                 return;
             }
             Notiflix.Notify.info(`Hooray! We found ${data.data.totalHits} images. `);
             renderData(hits);
-            
-       refs.loadMoreBtn.hidden = false;    
+       refs.loadMoreBtn.style.visibility = 'visible';    
+       
      })
         .catch( error => {
             Notiflix.Notify.failure('Oops, smth went wrong');
@@ -104,6 +107,8 @@ function renderData(data) {
 function clearData() {
   refs.gallery.innerHTML = '';
   currentPage = 1;
+  refs.msg.style.visibility = 'hidden';
+   refs.loadMoreBtn.style.visibility = 'hidden';
 };
 
   
